@@ -31,6 +31,15 @@ def add_free_items(old_item):
 
 
 def find_successors(matrix, position):
+    """This function will return the possible movement for next move
+
+    Args:
+        matrix (nd.array): the cost matrix
+        position (set): start position for next move
+
+    Returns:
+        _type_: a list of possible moves
+    """
     positions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
     moves = ["L", "R", "U", "D"]
     successors = []
