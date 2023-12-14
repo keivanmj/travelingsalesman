@@ -30,6 +30,41 @@ def add_free_items(old_item):
 
 
 
+def find_start_point(matrix):
+    """This function will return the start point
+
+    Args:
+        matrix (nd.array): the cost matrix
+
+    Returns:
+        _type_: start point
+    """
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            if "R" in matrix[i, j]:
+                return (i, j)
+    return None
+
+
+
+def find_goal_points(matrix):
+    """This function will return the goal points
+
+    Args:
+        matrix (nd.array): the cost matrix
+
+    Returns:
+        _type_: a list of goal points
+    """
+    goal_points = []
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            if "T" in matrix[i, j]:
+                goal_points.append((i, j))
+    return goal_points
+
+
+
 def find_successors(matrix, position):
     """This function will return the possible movement for next move
 
