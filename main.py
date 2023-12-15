@@ -167,7 +167,7 @@ def print_matrix(matrix, moves=""):
 def breadthFirstSearch(matrix):
     """This is a Breadth-first search algorithm that returns the shortest path from start point to any other points of the matrix
     """
-    size = matrix.shape[0]*matrix.shape[1]
+    size = matrix.shape[0]*matrix.shape[1] - np.count_nonzero(matrix == 'X')
     q = queue.Queue()
     q.put("")
     path = ""
@@ -186,10 +186,8 @@ def breadthFirstSearch(matrix):
                             best_valid_path = (newpath, calculate_cost(matrix, newpath))
                 else:
                     q.put(newpath)
-    print_matrix(matrix)
-    print(f"###{best_valid_path}")
-    #print_matrix(matrix, valid_paths[0])
-
+    print_matrix(matrix, best_valid_path[0])
+    print(best_valid_path)
 
 
 
@@ -202,7 +200,10 @@ def breadthFirstSearch(matrix):
 #print(cost_matrix)
 
 #matrix = np.array([["5", "2T", "1"], ["2R", "5", "5"], ["4C", "3T", "7I"]])
-matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
+#matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
+matrix = np.array([["1R", "1", "1", "5", "5", "4", "2C", "1", "15", "1B"], ["1", "1", "5", "3", "5", "5", "4", "5", "X", "X"]
+                 , ["5", "1I", "1", "6", "2", "2", "2", "1", "1", "1T"], ["X", "X", "1", "6", "5", "5", "2", "1", "1", "X"]
+                 , ["X", "X", "1", "X", "X", "50", "2", "1C", "1", "X"], ["1", "1", "1", "2", "2", "2T", "2", "1", "1", "1"]])
 
 #print(matrix)
 #print(cost(matrix))
