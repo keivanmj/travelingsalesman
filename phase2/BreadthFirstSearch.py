@@ -1,15 +1,12 @@
+import numpy as np
 import queue
+import time
 import phase1.successor as p1
 
 
-def cost(matrix):
-    """This function will return the cost matrix
-    Args:
-        matrix (nd.array): the org matrix
-    Returns:
-        _type_: cost matrix
-    """
-    def add_free_items(old_item):
+def calculate_cost(matrix, path):
+    maze = np.copy(matrix)
+    def check_item(old_item):
         """this function will add the free items in matrix
     Args:
         old_item (str): matrix items with letters
@@ -21,20 +18,23 @@ def cost(matrix):
         Ice_cream = 12
 
         if "C" == old_item[-1]:
-            return str(int(old_item[:-1]) - Coffee)
+            return (old_item[:-1], str(int(old_item[:-1]) - Coffee))
         elif "B" == old_item[-1]:
-            return str(int(old_item[:-1]) - Biscuit)
+            return (old_item[:-1], str(int(old_item[:-1]) - Biscuit))
         elif "I" == old_item[-1]:
-            return str(int(old_item[:-1]) - Ice_cream)
+            return (old_item[:-1], str(int(old_item[:-1]) - Ice_cream))
         elif "R" == old_item[-1]:
-            return str(old_item[:-1])
+            return (old_item, str(old_item[:-1]))
         elif "T" == old_item[-1]:
-            return str(old_item[:-1])
+            return (old_item, str(old_item[:-1]))
         else:
-            return old_item
-    return list(map(lambda row: list(map(add_free_items, row)), matrix))
-
-
+            return (old_item, old_item)
+    cost = 0
+    for step in range(len(path)+1):
+        i, j = find_location(maze, path[0:step])
+        maze[i, j], cost_item = check_item(maze[i, j])
+        cost += int(cost_item)
+    return cost
 
 def find_location(matrix, path):
     """Finds the location of a path on the matrix
@@ -80,11 +80,11 @@ def find_goal_points(matrix):
     Returns:
         _type_: a list of goal points
     """
-    goal_points = []
+    goal_points = set()
     for i in range(matrix.shape[0]):
         for j in range(matrix.shape[1]):
             if "T" in matrix[i, j]:
-                goal_points.append((i, j))
+                goal_points.add((i, j))
     return goal_points
 
 
@@ -95,7 +95,7 @@ def is_job_done(matrix, moves):
         boolean: returns is the job done or not
     """
     i, j = find_start_point(matrix)
-    visited_goals = []
+    visited_goals = set()
     for move in moves:
         if move == "L":
             j -= 1
@@ -108,8 +108,8 @@ def is_job_done(matrix, moves):
         #print(f"({i}, {j})")
         #print(matrix[i, j])
         if (i, j) in find_goal_points(matrix):
-            visited_goals.append((i, j))
-    if len(visited_goals) == len(find_goal_points(matrix)):
+            visited_goals.add((i, j))
+    if visited_goals == find_goal_points(matrix):
         return True 
     else:
         return False
@@ -134,45 +134,31 @@ def print_matrix(matrix, moves=""):
         elif move == "D":
             i += 1
         pos.add((i, j))    #  '─', '│', '┌', '│', '└', '│', '├', '─', '─', '┐', '┬', '┘', '┴', '┤', '┼'
-    print("┌" + "─────┬"*len(cost(matrix)[0]))
-    for i, row in enumerate(cost(matrix)):
+    print("┌" + "─────┬"*len(matrix[0]))
+    for i, row in enumerate(matrix):
         print("│", end="")
         for j, val in enumerate(row):
             if (i, j) in pos:
                 print("{:^5}".format("+"), end = "│")
             else:
                 print("{:^5}".format(val), end = "│")
-        print("\n├" + "─────┼"*len(cost(matrix)[0]))
+        print("\n├" + "─────┼"*len(matrix[0]))
 
 
 
 def breadthFirstSearch(matrix):
     """This is a Breadth-first search algorithm that returns the shortest path from start point to any other points of the matrix
     """
+    start = time.time()
     q = queue.Queue()
     q.put("")
     path = ""
-    valid_paths = []
-    visited = [find_location(matrix, "")]
-    c=0
-    while not(c == 100):
+    while not(is_job_done(matrix, path)):
         path = q.get()
-        c+=1
-        print(f"###{c}")
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in p1.find_successors(matrix, find_location(matrix, path)):
-                if find_location(matrix, newpath) not in visited:
-                    visited.append(find_location(matrix, newpath))
-                    print(newpath)
-                    print(visited)
-                    if is_job_done(matrix, newpath):
-                        valid_paths.append(newpath)
-                        visited = [find_location(matrix, "")]
-                        for part in range(len(newpath)-1):
-                            #print(newpath[0:part+1])
-                            visited.append(find_location(matrix, newpath[0:part+1]))
-                    else:
-                        q.put(newpath)
-    print(f"###{valid_paths}")
-    #print_matrix(matrix, valid_paths[0])
+                q.put(newpath)
+    end = time.time()
+    print_matrix(matrix)
+    return ((500 - calculate_cost(matrix, path)), path, (end - start))
