@@ -1,6 +1,6 @@
 import numpy as np
 import queue
-
+import time
 
 
 def calculate_cost(matrix, path):
@@ -29,8 +29,8 @@ def calculate_cost(matrix, path):
         else:
             return (old_item, old_item)
     cost = 0
-    for step in range(len(path)):
-        i, j = find_location(maze, path[0:step+1])
+    for step in range(len(path)+1):
+        i, j = find_location(maze, path[0:step])
         maze[i, j], cost_item = check_item(maze[i, j])
         cost += int(cost_item)
     return cost
@@ -167,52 +167,35 @@ def print_matrix(matrix, moves=""):
 def breadthFirstSearch(matrix):
     """This is a Breadth-first search algorithm that returns the shortest path from start point to any other points of the matrix
     """
-    size = matrix.shape[0]*matrix.shape[1] - np.count_nonzero(matrix == 'X')
+    start = time.time()
     q = queue.Queue()
     q.put("")
     path = ""
-    best_valid_path = set()
-    while len(path) < size-1:
+    while not(is_job_done(matrix, path)):
         path = q.get()
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
-                print(newpath)
-                if is_job_done(matrix, newpath):
-                    if best_valid_path == set():
-                        best_valid_path = (newpath, calculate_cost(matrix, newpath))
-                    else:
-                        if calculate_cost(matrix, newpath) < calculate_cost(matrix, best_valid_path):
-                            best_valid_path = (newpath, calculate_cost(matrix, newpath))
-                else:
-                    q.put(newpath)
-    print_matrix(matrix, best_valid_path[0])
-    print(best_valid_path)
+                q.put(newpath)
+    end = time.time()
+    print_matrix(matrix)
+    return ((500 - calculate_cost(matrix, path)), path, (end - start))
 
 
+choise = str(input("Do you want to enter the matrix manually(True) or use the samples(False)?"))
+if choise == "True":
+    Rows = int(input("Give the number of rows:"))
+    Columns = int(input("Give the number of columns:"))
+    matrix = np.array([list(map(str, input().split())) for _ in range(Rows)])
+elif choise == "False":
+    sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
+    if sample_number == 0:
+        matrix = np.array([["5", "2T", "1"], ["2R", "5", "5"], ["4C", "3T", "7I"]])
+    elif sample_number == 1:
+        matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
+    elif sample_number == 2:
+        matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
+                         , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
+                         , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
 
-#Rows = int(input("Give the number of rows:"))
-#Columns = int(input("Give the number of columns:"))
-#matrix = np.array([list(map(str, input().split())) for _ in range(Rows)])
-#print(matrix)
-
-#cost_matrix = list(map(lambda row: list(map(add_free_items, row)), matrix))
-#print(cost_matrix)
-
-#matrix = np.array([["5", "2T", "1"], ["2R", "5", "5"], ["4C", "3T", "7I"]])
-#matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
-matrix = np.array([["1R", "1", "1", "5", "5", "4", "2C", "1", "15", "1B"], ["1", "1", "5", "3", "5", "5", "4", "5", "X", "X"]
-                 , ["5", "1I", "1", "6", "2", "2", "2", "1", "1", "1T"], ["X", "X", "1", "6", "5", "5", "2", "1", "1", "X"]
-                 , ["X", "X", "1", "X", "X", "50", "2", "1C", "1", "X"], ["1", "1", "1", "2", "2", "2T", "2", "1", "1", "1"]])
-
-#print(matrix)
-#print(cost(matrix))
-#print(find_start_point(matrix))
-#print(find_goal_points(matrix))
-#print_matrix(matrix)
-#print(find_successors(matrix, (1, 0)))
-#print(is_job_done(matrix, ""))
-breadthFirstSearch(matrix)
-#print(find_successors(matrix, find_location(matrix, "D")))
-#print(matrix[1, 2])
-#print(is_job_done(matrix, "DRRU"))
+print(breadthFirstSearch(matrix))
