@@ -2,8 +2,16 @@ import numpy as np
 import queue
 
 
-def add_free_items(old_item):
-    """this function will add the free items in matrix
+
+def cost(matrix):
+    """This function will return the cost matrix
+    Args:
+        matrix (nd.array): the org matrix
+    Returns:
+        _type_: cost matrix
+    """
+    def add_free_items(old_item):
+        """this function will add the free items in matrix
 
     Args:
         old_item (str): matrix items with letters
@@ -11,22 +19,45 @@ def add_free_items(old_item):
     Returns:
         int: cost matrix items
     """
-    Coffee = 10
-    Biscuit = 5
-    Ice_cream = 12
+        Coffee = 10
+        Biscuit = 5
+        Ice_cream = 12
     
-    if "C" == old_item[-1]:
-        return str(int(old_item[:-1]) - Coffee)
-    elif "B" == old_item[-1]:
-        return str(int(old_item[:-1]) - Biscuit)
-    elif "I" == old_item[-1]:
-        return str(int(old_item[:-1]) - Ice_cream)
-    elif "R" == old_item[-1]:
-        return str(old_item[:-1])
-    elif "T" == old_item[-1]:
-        return str(old_item[:-1])
-    else:
-        return old_item
+        if "C" == old_item[-1]:
+            return str(int(old_item[:-1]) - Coffee)
+        elif "B" == old_item[-1]:
+            return str(int(old_item[:-1]) - Biscuit)
+        elif "I" == old_item[-1]:
+            return str(int(old_item[:-1]) - Ice_cream)
+        elif "R" == old_item[-1]:
+            return str(old_item[:-1])
+        elif "T" == old_item[-1]:
+            return str(old_item[:-1])
+        else:
+            return old_item
+    return list(map(lambda row: list(map(add_free_items, row)), matrix))
+
+
+
+def find_location(matrix, path):
+    """Finds the location of a path on the matrix
+    Args:
+    matrix (list): The matrix to search through
+    path (str): The path that we are looking for it's position
+    Returns:
+    tuple: A tuple containing the x and y coordinates of the item or None if it is not found
+    """
+    i, j = find_start_point(matrix)
+    for move in path:
+        if move == "L":
+            i -= 1
+        elif move == "R":
+            i += 1
+        elif move == "U":
+            j -= 1
+        elif move == "D":
+            j += 1
+    return (i, j)
 
 
 
@@ -86,6 +117,83 @@ def find_successors(matrix, position):
 
 
 
+def is_job_done(matrix, moves):
+    """This function will return the job done message
+
+    Returns:
+        boolean: returns is the job done or not
+    """
+    i, j = find_start_point(matrix)
+    visited_goals = []
+    for move in moves:
+        if move == "L":
+            i -= 1
+        elif move == "R":
+            i += 1
+        elif move == "U":
+            j -= 1
+        elif move == "D":
+            j += 1
+        if matrix[i, j] in find_goal_points(matrix):
+            visited_goals.add(matrix[i, j])
+    if len(visited_goals) == len(find_goal_points(matrix)):
+        return True 
+    else:
+        return False
+
+
+
+def print_matrix(matrix, moves=""):
+    """This function will print the matrix with moves
+
+    Args:
+        matrix (nd.array): the org matrix
+        moves (list): the path to the goal
+    """
+    i, j = find_start_point(matrix)
+    pos = set()
+    for move in moves:
+        if move == "L":
+            i -= 1
+        elif move == "R":
+            i += 1
+        elif move == "U":
+            j -= 1
+        elif move == "D":
+            j += 1
+        pos.add((i, j))    #  '─', '│', '┌', '│', '└', '│', '├', '─', '─', '┐', '┬', '┘', '┴', '┤', '┼'
+    print("┌" + "─────┬"*len(cost(matrix)[0]))
+    for i, row in enumerate(cost(matrix)):
+        print("│", end="")
+        for j, val in enumerate(row):
+            if (i, j) in pos:
+                print("{:^5}".format("+"), end = "│")
+            else:
+                print("{:^5}".format(val), end = "│")
+        print("\n├" + "─────┼"*len(cost(matrix)[0]))
+
+
+
+def breadthFirstSearch(matrix):
+    """This is a Breadth-first search algorithm that returns the shortest path from start point to any other points of the matrix
+    """
+    q = queue.Queue()
+    q.put("")
+    path = ""
+    valid_paths = []
+    while not(q.empty()):
+        path = q.get()
+        for move in ["L", "R", "U", "D"]:
+            newpath = path + move
+            if is_job_done(matrix, newpath):
+                valid_paths.append(newpath)
+            elif newpath in find_successors(matrix, find_location(matrix, path)):
+                q.put(newpath)
+                
+    print_matrix(matrix, valid_paths[0])
+        
+
+
 
 #Rows = int(input("Give the number of rows:"))
 #Columns = int(input("Give the number of columns:"))
@@ -96,7 +204,12 @@ def find_successors(matrix, position):
 #print(cost_matrix)
 
 matrix = np.array([["2R", "X", "5T"], ["4C", "3", "7I"]])
-print(matrix)
-cost_matrix = list(map(lambda row: list(map(add_free_items, row)), matrix))
-print(cost_matrix)
-print(find_successors(matrix, (1, 0)))
+#print(matrix)
+print(cost(matrix))
+print(find_successors(matrix, (0, 0)))
+print(find_start_point(matrix))
+print(find_goal_points(matrix))
+#print_matrix(matrix)
+#print(is_job_done(matrix, ""))
+#breadthFirstSearch(matrix)
+print(find_successors(matrix, find_location(matrix, "D")))
