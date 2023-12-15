@@ -50,13 +50,13 @@ def find_location(matrix, path):
     i, j = find_start_point(matrix)
     for move in path:
         if move == "L":
-            i -= 1
-        elif move == "R":
-            i += 1
-        elif move == "U":
             j -= 1
-        elif move == "D":
+        elif move == "R":
             j += 1
+        elif move == "U":
+            i -= 1
+        elif move == "D":
+            i += 1
     return (i, j)
 
 
@@ -127,15 +127,17 @@ def is_job_done(matrix, moves):
     visited_goals = []
     for move in moves:
         if move == "L":
-            i -= 1
-        elif move == "R":
-            i += 1
-        elif move == "U":
             j -= 1
-        elif move == "D":
+        elif move == "R":
             j += 1
-        if matrix[i, j] in find_goal_points(matrix):
-            visited_goals.add(matrix[i, j])
+        elif move == "U":
+            i -= 1
+        elif move == "D":
+            i += 1
+        #print(f"({i}, {j})")
+        #print(matrix[i, j])
+        if (i, j) in find_goal_points(matrix):
+            visited_goals.append((i, j))
     if len(visited_goals) == len(find_goal_points(matrix)):
         return True 
     else:
@@ -154,13 +156,13 @@ def print_matrix(matrix, moves=""):
     pos = set()
     for move in moves:
         if move == "L":
-            i -= 1
-        elif move == "R":
-            i += 1
-        elif move == "U":
             j -= 1
-        elif move == "D":
+        elif move == "R":
             j += 1
+        elif move == "U":
+            i -= 1
+        elif move == "D":
+            i += 1
         pos.add((i, j))    #  '─', '│', '┌', '│', '└', '│', '├', '─', '─', '┐', '┬', '┘', '┴', '┤', '┼'
     print("┌" + "─────┬"*len(cost(matrix)[0]))
     for i, row in enumerate(cost(matrix)):
@@ -181,16 +183,20 @@ def breadthFirstSearch(matrix):
     q.put("")
     path = ""
     valid_paths = []
-    while not(q.empty()):
+    c=0
+    while not(c == 10):
         path = q.get()
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
-            if is_job_done(matrix, newpath):
-                valid_paths.append(newpath)
-            elif newpath in find_successors(matrix, find_location(matrix, path)):
-                q.put(newpath)
-                
-    print_matrix(matrix, valid_paths[0])
+            if move in find_successors(matrix, find_location(matrix, path)):
+                print(newpath)
+                if is_job_done(matrix, newpath):
+                    valid_paths.append(newpath)
+                else:
+                    q.put(newpath)
+        c+=1
+    print(valid_paths)
+    #print_matrix(matrix, valid_paths[0])
         
 
 
@@ -205,11 +211,13 @@ def breadthFirstSearch(matrix):
 
 matrix = np.array([["2R", "X", "5T"], ["4C", "3", "7I"]])
 #print(matrix)
-print(cost(matrix))
-print(find_successors(matrix, (0, 0)))
-print(find_start_point(matrix))
-print(find_goal_points(matrix))
-#print_matrix(matrix)
+#print(cost(matrix))
+#print(find_start_point(matrix))
+#print(find_goal_points(matrix))
+print_matrix(matrix)
+#print(find_successors(matrix, (1, 0)))
 #print(is_job_done(matrix, ""))
-#breadthFirstSearch(matrix)
-print(find_successors(matrix, find_location(matrix, "D")))
+breadthFirstSearch(matrix)
+#print(find_successors(matrix, find_location(matrix, "D")))
+#print(matrix[1, 2])
+#print(is_job_done(matrix, "DRRU"))
