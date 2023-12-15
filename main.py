@@ -183,19 +183,28 @@ def breadthFirstSearch(matrix):
     q.put("")
     path = ""
     valid_paths = []
+    visited = [find_location(matrix, "")]
     c=0
-    while not(c == 10):
+    while not(c == 100):
         path = q.get()
+        c+=1
+        print(f"###{c}")
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
-                print(newpath)
-                if is_job_done(matrix, newpath):
-                    valid_paths.append(newpath)
-                else:
-                    q.put(newpath)
-        c+=1
-    print(valid_paths)
+                if find_location(matrix, newpath) not in visited:
+                    visited.append(find_location(matrix, newpath))
+                    print(newpath)
+                    print(visited)
+                    if is_job_done(matrix, newpath):
+                        valid_paths.append(newpath)
+                        visited = [find_location(matrix, "")]
+                        for part in range(len(newpath)-1):
+                            #print(newpath[0:part+1])
+                            visited.append(find_location(matrix, newpath[0:part+1]))
+                    else:
+                        q.put(newpath)
+    print(f"###{valid_paths}")
     #print_matrix(matrix, valid_paths[0])
         
 
@@ -209,7 +218,9 @@ def breadthFirstSearch(matrix):
 #cost_matrix = list(map(lambda row: list(map(add_free_items, row)), matrix))
 #print(cost_matrix)
 
-matrix = np.array([["2R", "X", "5T"], ["4C", "3", "7I"]])
+matrix = np.array([["5", "25", "1"], ["2R", "X", "5"], ["4C", "3T", "7I"]])
+#matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
+
 #print(matrix)
 #print(cost(matrix))
 #print(find_start_point(matrix))
