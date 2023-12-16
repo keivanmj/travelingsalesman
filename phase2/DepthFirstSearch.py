@@ -1,19 +1,19 @@
-import phase2.Stack as s1
 import phase1.successor as p1
 import numpy as np
-import queue
-import time
 from queue import LifoQueue
+import time
+
+
 
 def calculate_cost(matrix, path):
     maze = np.copy(matrix)
     def check_item(old_item):
         """this function will add the free items in matrix
-    Args:
-        old_item (str): matrix items with letters
-    Returns:
-        int: cost matrix items
-    """
+        Args:
+            old_item (str): matrix items with letters
+        Returns:
+            int: cost matrix items
+        """
         Coffee = 10
         Biscuit = 5
         Ice_cream = 12
@@ -36,6 +36,30 @@ def calculate_cost(matrix, path):
         maze[i, j], cost_item = check_item(maze[i, j])
         cost += int(cost_item)
     return cost
+
+
+
+def item_check(matrix, path):
+    """this function will add the free items in matrix
+    Args:
+        old_item (str): matrix items with letters
+    Returns:
+        int: cost matrix items
+    """
+
+    i, j = find_location(matrix, path)
+    if "C" in matrix[i, j]:
+        return "C"
+    elif "B" in matrix[i, j]:
+        return "B"
+    elif "I" in matrix[i, j]:
+        return "I"
+    elif "T" in matrix[i, j]:
+        return "T"
+    else:
+        return ""
+
+
 
 def find_location(matrix, path):
     """Finds the location of a path on the matrix
@@ -90,25 +114,6 @@ def find_goal_points(matrix):
 
 
 
-def find_successors(matrix, position):
-    """This function will return the possible movement for next move
-    Args:
-        matrix (nd.array): the cost matrix
-        position (set): start position for next move
-    Returns:
-        _type_: a list of possible moves
-    """
-    positions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
-    moves = ["L", "R", "U", "D"]
-    successors = []
-    for direction, pos in enumerate(positions):
-        new_x, new_y = position[0] + pos[0], position[1] + pos[1]
-        if 0 <= new_x < matrix.shape[0] and 0 <= new_y < matrix.shape[1] and matrix[new_x, new_y] != "X":
-            successors.append(moves[direction])
-    return successors
-
-
-
 def is_job_done(matrix, moves):
     """This function will return the job done message
     Returns:
@@ -125,8 +130,6 @@ def is_job_done(matrix, moves):
             i -= 1
         elif move == "D":
             i += 1
-        #print(f"({i}, {j})")
-        #print(matrix[i, j])
         if (i, j) in find_goal_points(matrix):
             visited_goals.add((i, j))
     if visited_goals == find_goal_points(matrix):
@@ -164,54 +167,48 @@ def print_matrix(matrix, moves=""):
                 print("{:^5}".format(val), end = "│")
         print("\n├" + "─────┼"*len(matrix[0]))
 
+
+
 def depthFirstSearch(matrix):
     """This is a Depth-first search algorithm that returns the shortest path from start point to any other points of the matrix
         """
     start = time.time()
-    stack = s1.create_stack()
-    #q = queue.Queue()
-    s1.push(stack, "")
-    #q.put("")
+    s = LifoQueue()
     path = ""
-    print_matrix(matrix)
+    s.put(path)
+    visited = set()
+    visited_items = ""
     while not (is_job_done(matrix, path)):
-        # path = q.get()
-        path = s1.pop(stack)
-        # print("path is " + path)
+        path = s.get()
+        i, j = find_location(matrix, path)
+        if (i, j, visited_items) in visited:
+            continue
+        visited_items += item_check(matrix, path)
+        visited.add((i, j, visited_items))
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
-            # print("new path is " + newpath)
-            if move in find_successors(matrix, find_location(matrix, path)):
-                #q.put(newpath)
-                print("new path is " + newpath)
-                s1.push(stack, newpath)
-                # print(s1)
+            if move in p1.find_successors(matrix, find_location(matrix, path)):
+                s.put(newpath)
     end = time.time()
-    # print_matrix(matrix)
-    return ( (490 - calculate_cost(matrix, path)), "path is " + path, (end - start))
-
-# matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
-#                     , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
-#                     , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
-#
-# print(depthFirstSearch(matrix))
+    print_matrix(matrix)
+    return ( (500 - calculate_cost(matrix, path)), path, (end - start))
 
 
 
-# choise = str(input("Do you want to enter the matrix manually(True) or use the samples(False)?"))
-# if choise == "True":
-#     Rows = int(input("Give the number of rows:"))
-#     Columns = int(input("Give the number of columns:"))
-#     matrix = np.array([list(map(str, input().split())) for _ in range(Rows)])
-# elif choise == "False":
-#     sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
-#     if sample_number == 0:
-#         matrix = np.array([["5", "2T", "1"], ["2R", "5", "5"], ["4C", "3T", "7I"]])
-#     elif sample_number == 1:
-#         matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
-#     elif sample_number == 2:
-#         matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
-#                          , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
-#                          , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
-#
-# print(breadthFirstSearch(matrix))
+choise = str(input("Do you want to enter the matrix manually(True) or use the samples(False)?"))
+if choise == "True":
+    Rows = int(input("Give the number of rows:"))
+    Columns = int(input("Give the number of columns:"))
+    matrix = np.array([list(map(str, input().split())) for _ in range(Rows)])
+elif choise == "False":
+    sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
+    if sample_number == 0:
+        matrix = np.array([["5", "2T", "1"], ["2R", "5", "X"], ["4C", "3T", "7I"]])
+    elif sample_number == 1:
+        matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
+    elif sample_number == 2:
+        matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
+                         , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
+                         , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
+
+print(depthFirstSearch(matrix))
