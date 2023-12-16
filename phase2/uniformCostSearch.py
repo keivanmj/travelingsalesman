@@ -190,7 +190,7 @@ def uniformCostSearch(matrix):
         visited.add((i, j, visited_items))
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
-            if move in find_successors(matrix, find_location(matrix, path)):
+            if move in p1.find_successors(matrix, find_location(matrix, path)):
                 pq.put(((cost + calculate_cost(matrix, newpath)), newpath))
     end = time.time()
     return "No routes found!"
