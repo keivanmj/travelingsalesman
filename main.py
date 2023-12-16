@@ -182,6 +182,27 @@ def breadthFirstSearch(matrix):
     return ((500 - calculate_cost(matrix, path)), path, (end - start))
 
 
+
+def uniformCostSearch(matrix):
+    """This is a Uniform-cost search algorithm that returns the shortest path from start point to any other points of the matrix
+    """
+    start = time.time()
+    q = queue.Queue()
+    q.put("")
+    path = ""
+    while not(is_job_done(matrix, path)):
+        path = q.get()
+        for move in ["L", "R", "U", "D"]:
+            newpath = path + move
+            if move in find_successors(matrix, find_location(matrix, path)):
+                q.put(newpath)
+    end = time.time()
+    print_matrix(matrix)
+    return ((500 - calculate_cost(matrix, path)), path, (end - start))
+
+
+
+
 choise = str(input("Do you want to enter the matrix manually(True) or use the samples(False)?"))
 if choise == "True":
     Rows = int(input("Give the number of rows:"))
