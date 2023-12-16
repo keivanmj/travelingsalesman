@@ -1,5 +1,5 @@
 import numpy as np
-from queue import Queue, PriorityQueue
+from queue import Queue, LifoQueue, PriorityQueue
 import time
 
 
@@ -194,8 +194,15 @@ def breadthFirstSearch(matrix):
     q = Queue()
     path = ""
     q.put(path)
+    visited = set()
+    visited_items = ""
     while not(is_job_done(matrix, path)):
         path = q.get()
+        i, j = find_location(matrix, path)
+        if (i, j, visited_items) in visited:
+            continue
+        visited_items += item_check(matrix, path)
+        visited.add((i, j, visited_items))
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
@@ -203,6 +210,32 @@ def breadthFirstSearch(matrix):
     end = time.time()
     print_matrix(matrix)
     return ((500 - calculate_cost(matrix, path)), path, (end - start))
+
+
+
+def depthFirstSearch(matrix):
+    """This is a Depth-first search algorithm that returns the shortest path from start point to any other points of the matrix
+        """
+    start = time.time()
+    s = LifoQueue()
+    path = ""
+    s.put(path)
+    visited = set()
+    visited_items = ""
+    while not (is_job_done(matrix, path)):
+        path = s.get()
+        i, j = find_location(matrix, path)
+        if (i, j, visited_items) in visited:
+            continue
+        visited_items += item_check(matrix, path)
+        visited.add((i, j, visited_items))
+        for move in ["L", "R", "U", "D"]:
+            newpath = path + move
+            if move in find_successors(matrix, find_location(matrix, path)):
+                s.put(newpath)
+    end = time.time()
+    print_matrix(matrix)
+    return ( (500 - calculate_cost(matrix, path)), path, (end - start))
 
 
 
@@ -228,7 +261,7 @@ def uniformCostSearch(matrix):
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
-                pq.put(((cost + calculate_cost(matrix, newpath)), newpath))
+                pq.put(((calculate_cost(matrix, newpath)), newpath))
     end = time.time()
     return "No routes found!"
 
@@ -251,5 +284,6 @@ elif choise == "False":
                          , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
                          , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
 
-#print(breadthFirstSearch(matrix))
+print(breadthFirstSearch(matrix))
+print(depthFirstSearch(matrix))
 print(uniformCostSearch(matrix))
