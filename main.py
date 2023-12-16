@@ -1,17 +1,18 @@
 import numpy as np
-import queue
+from queue import Queue, PriorityQueue
 import time
+
 
 
 def calculate_cost(matrix, path):
     maze = np.copy(matrix)
     def check_item(old_item):
         """this function will add the free items in matrix
-    Args:
-        old_item (str): matrix items with letters
-    Returns:
-        int: cost matrix items
-    """
+        Args:
+            old_item (str): matrix items with letters
+        Returns:
+            int: cost matrix items
+        """
         Coffee = 10
         Biscuit = 5
         Ice_cream = 12
@@ -34,6 +35,30 @@ def calculate_cost(matrix, path):
         maze[i, j], cost_item = check_item(maze[i, j])
         cost += int(cost_item)
     return cost
+
+
+
+def item_check(matrix, path):
+    """this function will add the free items in matrix
+    Args:
+        old_item (str): matrix items with letters
+    Returns:
+        int: cost matrix items
+    """
+
+    i, j = find_location(matrix, path)
+    if "C" in matrix[i, j]:
+        return "C"
+    elif "B" in matrix[i, j]:
+        return "B"
+    elif "I" in matrix[i, j]:
+        return "I"
+    elif "T" in matrix[i, j]:
+        return "T"
+    else:
+        return ""
+
+
 
 def find_location(matrix, path):
     """Finds the location of a path on the matrix
@@ -123,12 +148,10 @@ def is_job_done(matrix, moves):
             i -= 1
         elif move == "D":
             i += 1
-        #print(f"({i}, {j})")
-        #print(matrix[i, j])
         if (i, j) in find_goal_points(matrix):
             visited_goals.add((i, j))
     if visited_goals == find_goal_points(matrix):
-        return True 
+        return True
     else:
         return False
 
@@ -168,9 +191,9 @@ def breadthFirstSearch(matrix):
     """This is a Breadth-first search algorithm that returns the shortest path from start point to any other points of the matrix
     """
     start = time.time()
-    q = queue.Queue()
-    q.put("")
+    q = Queue()
     path = ""
+    q.put(path)
     while not(is_job_done(matrix, path)):
         path = q.get()
         for move in ["L", "R", "U", "D"]:
@@ -187,18 +210,27 @@ def uniformCostSearch(matrix):
     """This is a Uniform-cost search algorithm that returns the shortest path from start point to any other points of the matrix
     """
     start = time.time()
-    q = queue.Queue()
-    q.put("")
+    pq = PriorityQueue()
     path = ""
-    while not(is_job_done(matrix, path)):
-        path = q.get()
+    pq.put((calculate_cost(matrix, path), path))
+    visited = set()
+    visited_items = ""
+    while not pq.empty():
+        cost, path = pq.get()
+        if is_job_done(matrix, path):
+            print_matrix(matrix)
+            return ((500 - calculate_cost(matrix, path)), path, (time.time() - start))
+        i, j = find_location(matrix, path)
+        if (i, j, visited_items) in visited:
+            continue
+        visited_items += item_check(matrix, path)
+        visited.add((i, j, visited_items))
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
-                q.put(newpath)
+                pq.put(((cost + calculate_cost(matrix, newpath)), newpath))
     end = time.time()
-    print_matrix(matrix)
-    return ((500 - calculate_cost(matrix, path)), path, (end - start))
+    return "No routes found!"
 
 
 
@@ -211,7 +243,7 @@ if choise == "True":
 elif choise == "False":
     sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
     if sample_number == 0:
-        matrix = np.array([["5", "2T", "1"], ["2R", "5", "5"], ["4C", "3T", "7I"]])
+        matrix = np.array([["5", "2T", "1"], ["2R", "5", "X"], ["4C", "3T", "7I"]])
     elif sample_number == 1:
         matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
     elif sample_number == 2:
@@ -219,4 +251,5 @@ elif choise == "False":
                          , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
                          , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
 
-print(breadthFirstSearch(matrix))
+#print(breadthFirstSearch(matrix))
+print(uniformCostSearch(matrix))
