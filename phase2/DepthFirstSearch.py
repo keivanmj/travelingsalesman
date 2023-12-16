@@ -1,8 +1,9 @@
+import phase2.Stack as s1
 import phase1.successor as p1
 import numpy as np
 import queue
 import time
-
+from queue import LifoQueue
 
 def calculate_cost(matrix, path):
     maze = np.copy(matrix)
@@ -163,21 +164,54 @@ def print_matrix(matrix, moves=""):
                 print("{:^5}".format(val), end = "│")
         print("\n├" + "─────┼"*len(matrix[0]))
 
-
-
-def breadthFirstSearch(matrix):
-    """This is a Breadth-first search algorithm that returns the shortest path from start point to any other points of the matrix
-    """
+def depthFirstSearch(matrix):
+    """This is a Depth-first search algorithm that returns the shortest path from start point to any other points of the matrix
+        """
     start = time.time()
-    q = queue.Queue()
-    q.put("")
+    stack = s1.create_stack()
+    #q = queue.Queue()
+    s1.push(stack, "")
+    #q.put("")
     path = ""
-    while not(is_job_done(matrix, path)):
-        path = q.get()
+    print_matrix(matrix)
+    while not (is_job_done(matrix, path)):
+        # path = q.get()
+        path = s1.pop(stack)
+        # print("path is " + path)
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
+            # print("new path is " + newpath)
             if move in find_successors(matrix, find_location(matrix, path)):
-                q.put(newpath)
+                #q.put(newpath)
+                print("new path is " + newpath)
+                s1.push(stack, newpath)
+                # print(s1)
     end = time.time()
-    print_matrix(matrix)
-    return ((500 - calculate_cost(matrix, path)), path, (end - start))
+    # print_matrix(matrix)
+    return ( (490 - calculate_cost(matrix, path)), "path is " + path, (end - start))
+
+# matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
+#                     , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
+#                     , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
+#
+# print(depthFirstSearch(matrix))
+
+
+
+# choise = str(input("Do you want to enter the matrix manually(True) or use the samples(False)?"))
+# if choise == "True":
+#     Rows = int(input("Give the number of rows:"))
+#     Columns = int(input("Give the number of columns:"))
+#     matrix = np.array([list(map(str, input().split())) for _ in range(Rows)])
+# elif choise == "False":
+#     sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
+#     if sample_number == 0:
+#         matrix = np.array([["5", "2T", "1"], ["2R", "5", "5"], ["4C", "3T", "7I"]])
+#     elif sample_number == 1:
+#         matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
+#     elif sample_number == 2:
+#         matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
+#                          , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
+#                          , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
+#
+# print(breadthFirstSearch(matrix))
