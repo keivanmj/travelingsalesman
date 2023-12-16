@@ -1,6 +1,6 @@
 import phase1.successor as p1
 import numpy as np
-from queue import Queue, PriorityQueue
+from queue import PriorityQueue
 import time
 
 
@@ -191,10 +191,9 @@ def uniformCostSearch(matrix):
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in p1.find_successors(matrix, find_location(matrix, path)):
-                pq.put(((cost + calculate_cost(matrix, newpath)), newpath))
+                pq.put(((calculate_cost(matrix, newpath)), newpath))
     end = time.time()
     return "No routes found!"
-
 
 
 
@@ -214,5 +213,4 @@ elif choise == "False":
                          , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
                          , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
 
-#print(breadthFirstSearch(matrix))
 print(uniformCostSearch(matrix))
