@@ -129,19 +129,19 @@ def find_successors(matrix, position):
     return successors
 
 
-
 def heuristic(matrix, path):
     def visited_goals(matrix, path):
         goals = find_goal_points(matrix)
-        return set(find_location(matrix, path[0:step]) for step in range(len(path)+1) if find_location(matrix, path[0:step]) in goals)
-    
+        return set(find_location(matrix, path[0:step]) for step in range(len(path) + 1) if
+                   find_location(matrix, path[0:step]) in goals)
+
     ip, jp = find_location(matrix, path)
     goal_points = find_goal_points(matrix)
     hrt = 0
     c = 0
     for i, goal in enumerate(goal_points):
         if goal not in visited_goals(matrix, path):
-            ig , jg = goal
+            ig, jg = goal
             if (i - c) == 0:
                 hrt = abs(ip - ig) + abs(jp - jg)
             elif abs(ip - ig) + abs(jp - jg) <= hrt:
