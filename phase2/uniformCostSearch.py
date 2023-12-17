@@ -1,6 +1,6 @@
 import phase1.successor as p1
 import numpy as np
-from queue import Queue
+from queue import PriorityQueue
 import time
 
 
@@ -169,17 +169,20 @@ def print_matrix(matrix, moves=""):
 
 
 
-def breadthFirstSearch(matrix):
-    """This is a Breadth-first search algorithm that returns the shortest path from start point to any other points of the matrix
+def uniformCostSearch(matrix):
+    """This is a Uniform-cost search algorithm that returns the shortest path from start point to any other points of the matrix
     """
     start = time.time()
-    q = Queue()
+    pq = PriorityQueue()
     path = ""
-    q.put(path)
+    pq.put((calculate_cost(matrix, path), path))
     visited = set()
     visited_items = ""
-    while not(is_job_done(matrix, path)):
-        path = q.get()
+    while not pq.empty():
+        cost, path = pq.get()
+        if is_job_done(matrix, path):
+            print_matrix(matrix)
+            return ((500 - calculate_cost(matrix, path)), path, (time.time() - start))
         i, j = find_location(matrix, path)
         if (i, j, visited_items) in visited:
             continue
@@ -188,10 +191,9 @@ def breadthFirstSearch(matrix):
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in p1.find_successors(matrix, find_location(matrix, path)):
-                q.put(newpath)
+                pq.put(((calculate_cost(matrix, newpath)), newpath))
     end = time.time()
-    print_matrix(matrix)
-    return ((500 - calculate_cost(matrix, path)), path, (end - start))
+    return "No routes found!"
 
 
 
@@ -211,4 +213,4 @@ elif choise == "False":
                          , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
                          , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
 
-print(breadthFirstSearch(matrix))
+print(uniformCostSearch(matrix))
