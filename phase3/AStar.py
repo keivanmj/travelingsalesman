@@ -3,14 +3,13 @@ from queue import Queue, LifoQueue, PriorityQueue
 import time
 import functions.functions as f
 
-def AStar(matrix) :
-
-    """This is a Uniform-cost search algorithm that returns the shortest path from start point to any other points of the matrix
+def AStar(matrix):
+    """This is a A-star algorithm that returns the shortest path from start point to any other points of the matrix
     """
     start = time.time()
     pq = PriorityQueue()
     path = ""
-    pq.put((f.heuristic(matrix, path) + f.calculate_cost(), path))
+    pq.put(((f.calculate_heuristic(matrix, path) + f.calculate_cost(matrix, path)), path))
     visited = set()
     visited_items = ""
     while not pq.empty():
@@ -26,6 +25,6 @@ def AStar(matrix) :
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in f.find_successors(matrix, f.find_location(matrix, path)):
-                pq.put(((f.heuristic(matrix, newpath)) + f.calculate_cost(), newpath))
+                pq.put(((f.calculate_heuristic(matrix, newpath) + f.calculate_cost(matrix, newpath)), newpath))
     end = time.time()
     return "No routes found!"
