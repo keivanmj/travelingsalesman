@@ -176,21 +176,19 @@ def IterativeDeepeningSearch(matrix):
     s = LifoQueue()
     path = ""
     s.put(path)
-    visited = set()
-    visited_items = ""
     c = 0
     while not (is_job_done(matrix, path)):
         path = s.get()
-        print(path)
         if (len(path) == 0) :
             c = c + 1
+            visited = set()
+            visited_items = ""
             s.put("")
-        print("c is: " + str(c))
-        # i, j = find_location(matrix, path)
-        # if (i, j, visited_items) in visited:
-        #     continue
-        # visited_items += item_check(matrix, path)
-        # visited.add((i, j, visited_items))
+        i, j = find_location(matrix, path)
+        if (i, j, visited_items) in visited:
+            continue
+        visited_items += item_check(matrix, path)
+        visited.add((i, j, visited_items))
         if (len(path) < c) :
             for move in ["L", "R", "U", "D"]:
                 newpath = path + move
