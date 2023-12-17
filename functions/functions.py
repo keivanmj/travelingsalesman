@@ -138,13 +138,16 @@ def heuristic(matrix, path):
     ip, jp = find_location(matrix, path)
     goal_points = find_goal_points(matrix)
     hrt = 0
+    c = 0
     for i, goal in enumerate(goal_points):
         if goal not in visited_goals(matrix, path):
             ig , jg = goal
-            if i == 0:
+            if (i - c) == 0:
                 hrt = abs(ip - ig) + abs(jp - jg)
             elif abs(ip - ig) + abs(jp - jg) <= hrt:
                 hrt = abs(ip - ig) + abs(jp - jg)
+        else:
+            c += 1
     return hrt
 
 
@@ -201,3 +204,5 @@ def print_matrix(matrix, moves=""):
             else:
                 print("{:^5}".format(val), end = "│")
         print("\n┼" + "─────┼"*len(matrix[0]))
+
+
