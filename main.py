@@ -429,7 +429,7 @@ while True:
             Columns = int(input("Give the number of columns:"))
             matrix = np.array([list(map(str, input().split())) for _ in range(Rows)])
         elif choice == "S":
-            sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
+            sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\n(7, 7) -> 3\n(5, 5) -> 4\n(5, 7) -> 5\n(5, 5) -> 6\nchoose one of those samples:"))
             if sample_number == 0:
                 matrix = np.array([["5", "2T", "1"], ["2R", "5", "X"], ["4C", "3T", "7I"]])
             elif sample_number == 1:
@@ -438,6 +438,32 @@ while True:
                 matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
                                 , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
                                 , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
+            elif sample_number == 3:
+                matrix = np.array([["1R", "1", "1", "5", "5", "4", "2I"], 
+                                    ["1", "1", "5", "3", "20", "4T", "X"], 
+                                    ["5", "1", "10", "6", "2", "2", "2"], 
+                                    ["X", "X", "1", "6", "5", "5", "2"], 
+                                    ["X", "X", "1", "X", "X", "50", "2"], 
+                                    ["1", "1", "1", "2", "2", "2", "2"], 
+                                    ["X", "X", "X", "1", "1", "X", "X"]])
+            elif sample_number == 4:
+                matrix = np.array([["1R", "1", "1", "1", "1"], 
+                                    ["1", "1", "5", "3", "20"], 
+                                    ["1", "1", "10", "60", "2"], 
+                                    ["1", "X", "1", "1", "5T"], 
+                                    ["1", "1T", "1", "X", "X"]])
+            elif sample_number == 5:
+                matrix = np.array([["1R", "1", "1", "1", "1", "1","2I"],
+                                    ["1", "1", "5", "3", "20", "4", "X"],
+                                    ["5", "1", "10", "6", "2", "1C", "2"],
+                                    ["X", "X", "1", "6", "5", "5", "2"],
+                                    ["X", "X", "1", "X", "X", "50", "2T"]])
+            elif sample_number == 6:
+                matrix = np.array([["1R", "1", "1", "1", "1"], 
+                                    ["1", "1", "5", "3", "20"], 
+                                    ["1", "1", "10", "6", "2"], 
+                                    ["X", "X", "X", "5", "1"], 
+                                    ["1", "1T", "1", "1", "1T"]])
         elif choice == "E":
             break
         else:
