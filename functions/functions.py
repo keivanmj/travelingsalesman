@@ -1,5 +1,6 @@
 import numpy as np
 
+#calculates the
 def calculate_cost(matrix, path):
     maze = np.copy(matrix)
     def check_item(old_item):
@@ -31,6 +32,29 @@ def calculate_cost(matrix, path):
         maze[i, j], cost_item = check_item(maze[i, j])
         cost += int(cost_item)
     return cost
+
+
+
+def calculate_heuristic(matrix, path):
+    def visited_goals(matrix, path):
+        goals = find_goal_points(matrix)
+        return set(find_location(matrix, path[0:step]) for step in range(len(path)+1) if find_location(matrix, path[0:step]) in goals)
+    
+    heuristic = 0
+    ip, jp = find_location(matrix, path)
+    goal_points = find_goal_points(matrix) - visited_goals(matrix, path)
+    for _ in find_goal_points(matrix):
+        distances = set()
+        min_dist = 0
+        for goal_point in goal_points:
+            distances.add((goal_point[0], goal_point[1], (abs(ip - goal_point[0]) + abs(jp - goal_point[1]))))
+        if distances != set():
+            min_dist = min(distances, key=lambda x: x[2])
+            heuristic += min_dist[2]
+            ip, jp = min_dist[0], min_dist[1]
+            if goal_points:
+                goal_points.remove((ip, jp))
+    return heuristic
 
 
 
@@ -170,8 +194,8 @@ def print_matrix(matrix, moves=""):
             i -= 1
         elif move == "D":
             i += 1
-        pos.add((i, j))    #  '─', '│', '┌', '│', '└', '│', '├', '─', '─', '┐', '┬', '┘', '┴', '┤', '┼'
-    print("┌" + "─────┬"*len(matrix[0]))
+        pos.add((i, j))
+    print("┼" + "─────┼"*len(matrix[0]))
     for i, row in enumerate(matrix):
         print("│", end="")
         for j, val in enumerate(row):
@@ -179,17 +203,4 @@ def print_matrix(matrix, moves=""):
                 print("{:^5}".format("+"), end = "│")
             else:
                 print("{:^5}".format(val), end = "│")
-        print("\n├" + "─────┼"*len(matrix[0]))
-
-def heuristic(matrix, path):
-    ip ,jp = find_location(matrix, path)
-    goal_points = find_goal_points(matrix)
-    for i, goal in enumerate(goal_points) :
-        ig , jg = goal
-        if i == 0 :
-            min = abs(ip - ig) + abs(jp - jg)
-        elif abs(ip - ig) + abs(jp - jg) <= min :
-            min = abs(ip - ig) + abs(jp - jg)
-    return min
-
-
+        print("\n┼" + "─────┼"*len(matrix[0]))

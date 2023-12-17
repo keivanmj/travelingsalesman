@@ -5,6 +5,15 @@ import time
 
 
 def calculate_cost(matrix, path):
+    """calculates the cost of a move in matrix
+
+    Args:
+        matrix (_type_):
+        path (_type_):
+
+    Returns:
+        _type_: cost
+    """
     maze = np.copy(matrix)
     def check_item(old_item):
         """this function will add the free items in matrix
@@ -38,14 +47,56 @@ def calculate_cost(matrix, path):
 
 
 
-def item_check(matrix, path):
-    """this function will add the free items in matrix
-    Args:
-        old_item (str): matrix items with letters
-    Returns:
-        int: cost matrix items
-    """
+def calculate_heuristic(matrix, path):
+    """calculates the sum of heuristic distances between current place and all goal points using manhattan distance
 
+    Args:
+        matrix (_type_):
+        path (_type_):
+    Returns:
+        int: heuristic distance
+    """
+    def visited_goals(matrix, path):
+        """shows reached goals in a path
+
+        Args:
+            matrix (_type_):
+            path (_type_):
+
+        Returns:
+            _type_: returns all goals that were visited
+        """
+        goals = find_goal_points(matrix)
+        return set(find_location(matrix, path[0:step]) for step in range(len(path)+1) if find_location(matrix, path[0:step]) in goals)
+    
+    heuristic = 0
+    ip, jp = find_location(matrix, path)
+    goal_points = find_goal_points(matrix) - visited_goals(matrix, path)
+    for _ in find_goal_points(matrix):
+        distances = set()
+        min_dist = 0
+        for goal_point in goal_points:
+            distances.add((goal_point[0], goal_point[1], (abs(ip - goal_point[0]) + abs(jp - goal_point[1]))))
+        if distances != set():
+            min_dist = min(distances, key=lambda x: x[2])
+            heuristic += min_dist[2]
+            ip, jp = min_dist[0], min_dist[1]
+            if goal_points:
+                goal_points.remove((ip, jp))
+    return heuristic
+
+
+
+def item_check(matrix, path):
+    """check for an item in a matrix block
+
+    Args:
+        matrix (_type_):
+        path (_type_):
+
+    Returns:
+        _type_: returns the item
+    """
     i, j = find_location(matrix, path)
     if "C" in matrix[i, j]:
         return "C"
@@ -63,10 +114,10 @@ def item_check(matrix, path):
 def find_location(matrix, path):
     """Finds the location of a path on the matrix
     Args:
-    matrix (list): The matrix to search through
-    path (str): The path that we are looking for it's position
+        matrix (list): The matrix to search through
+        path (str): The path that we are looking for it's position
     Returns:
-    tuple: A tuple containing the x and y coordinates of the item or None if it is not found
+        tuple: A tuple containing the x and y coordinates of the item or None if it is not found
     """
     i, j = find_start_point(matrix)
     for move in path:
@@ -174,8 +225,8 @@ def print_matrix(matrix, moves=""):
             i -= 1
         elif move == "D":
             i += 1
-        pos.add((i, j))    #  '─', '│', '┌', '│', '└', '│', '├', '─', '─', '┐', '┬', '┘', '┴', '┤', '┼'
-    print("┌" + "─────┬"*len(matrix[0]))
+        pos.add((i, j))
+    print("┼" + "─────┼"*len(matrix[0]))
     for i, row in enumerate(matrix):
         print("│", end="")
         for j, val in enumerate(row):
@@ -183,20 +234,20 @@ def print_matrix(matrix, moves=""):
                 print("{:^5}".format("+"), end = "│")
             else:
                 print("{:^5}".format(val), end = "│")
-        print("\n├" + "─────┼"*len(matrix[0]))
+        print("\n┼" + "─────┼"*len(matrix[0]))
 
 
 
 def breadthFirstSearch(matrix):
     """This is a Breadth-first search algorithm that returns the shortest path from start point to any other points of the matrix
     """
-    start = time.time()
+    start_time = time.time()
     q = Queue()
     path = ""
     q.put(path)
     visited = set()
     visited_items = ""
-    while not(is_job_done(matrix, path)):
+    while not(is_job_done(matrix, path)) and not(q.empty()):
         path = q.get()
         i, j = find_location(matrix, path)
         if (i, j, visited_items) in visited:
@@ -207,22 +258,24 @@ def breadthFirstSearch(matrix):
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
                 q.put(newpath)
-    end = time.time()
     print_matrix(matrix)
-    return ((500 - calculate_cost(matrix, path)), path, (end - start))
+    if is_job_done(matrix, path):
+        return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+    else:
+        return "No routes found!"
 
 
 
 def depthFirstSearch(matrix):
     """This is a Depth-first search algorithm that returns the shortest path from start point to any other points of the matrix
-        """
-    start = time.time()
+    """
+    start_time = time.time()
     s = LifoQueue()
     path = ""
     s.put(path)
     visited = set()
     visited_items = ""
-    while not (is_job_done(matrix, path)):
+    while not(is_job_done(matrix, path)) and not(s.empty()):
         path = s.get()
         i, j = find_location(matrix, path)
         if (i, j, visited_items) in visited:
@@ -233,24 +286,28 @@ def depthFirstSearch(matrix):
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
                 s.put(newpath)
-    end = time.time()
+        if (len(path) >= (matrix.shape[0] * matrix.shape[1])):
+            return "No routes found!"
     print_matrix(matrix)
-    return ( (500 - calculate_cost(matrix, path)), path, (end - start))
+    if is_job_done(matrix, path):
+        return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+    else:
+        return "No routes found!"
 
 
 
 def IterativeDeepeningSearch(matrix):
-    """This is a Depth-first search algorithm that returns the shortest path from start point to any other points of the matrix
-        """
-    start = time.time()
+    """This is a Iterative-deepening search algorithm that returns the shortest path from start point to any other points of the matrix
+    """
+    start_time = time.time()
     s = LifoQueue()
     path = ""
     s.put(path)
-    c = 0
-    while not (is_job_done(matrix, path)):
+    depth = 0
+    while not(is_job_done(matrix, path)):
         path = s.get()
-        if (len(path) == 0) :
-            c = c + 1
+        if (len(path) == 0):
+            depth += 1
             visited = set()
             visited_items = ""
             s.put("")
@@ -259,21 +316,25 @@ def IterativeDeepeningSearch(matrix):
             continue
         visited_items += item_check(matrix, path)
         visited.add((i, j, visited_items))
-        if (len(path) < c) :
+        if (len(path) < depth):
             for move in ["L", "R", "U", "D"]:
                 newpath = path + move
-                if move in p1.find_successors(matrix, find_location(matrix, path)):
+                if move in find_successors(matrix, find_location(matrix, path)):
                     s.put(newpath)
-    end = time.time()
+        if (len(path) >= (matrix.shape[0] * matrix.shape[1])):
+            return "No routes found!"
     print_matrix(matrix)
-    return ( (500 - calculate_cost(matrix, path)), path, (end - start))
+    if is_job_done(matrix, path):
+        return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+    else:
+        return "No routes found!"
 
 
 
 def uniformCostSearch(matrix):
     """This is a Uniform-cost search algorithm that returns the shortest path from start point to any other points of the matrix
     """
-    start = time.time()
+    start_time = time.time()
     pq = PriorityQueue()
     path = ""
     pq.put((calculate_cost(matrix, path), path))
@@ -283,7 +344,7 @@ def uniformCostSearch(matrix):
         cost, path = pq.get()
         if is_job_done(matrix, path):
             print_matrix(matrix)
-            return ((500 - calculate_cost(matrix, path)), path, (time.time() - start))
+            return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
         i, j = find_location(matrix, path)
         if (i, j, visited_items) in visited:
             continue
@@ -293,28 +354,96 @@ def uniformCostSearch(matrix):
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
                 pq.put(((calculate_cost(matrix, newpath)), newpath))
-    end = time.time()
     return "No routes found!"
 
 
 
+def AStar(matrix):
+    """This is a A-star algorithm that returns the shortest path from start point to any other points of the matrix
+    """
+    start_time = time.time()
+    pq = PriorityQueue()
+    path = ""
+    pq.put(((calculate_heuristic(matrix, path) + calculate_cost(matrix, path)), path))
+    visited = set()
+    visited_items = ""
+    while not pq.empty():
+        cost, path = pq.get()
+        if is_job_done(matrix, path):
+            print_matrix(matrix)
+            return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+        i, j = find_location(matrix, path)
+        if (i, j, visited_items) in visited:
+            continue
+        visited_items += item_check(matrix, path)
+        visited.add((i, j, visited_items))
+        for move in ["L", "R", "U", "D"]:
+            newpath = path + move
+            if move in find_successors(matrix, find_location(matrix, path)):
+                pq.put(((calculate_heuristic(matrix, newpath) + calculate_cost(matrix, newpath)), newpath))
+    return "No routes found!"
 
-choise = str(input("Do you want to enter the matrix manually(True) or use the samples(False)?"))
-if choise == "True":
-    Rows = int(input("Give the number of rows:"))
-    Columns = int(input("Give the number of columns:"))
-    matrix = np.array([list(map(str, input().split())) for _ in range(Rows)])
-elif choise == "False":
-    sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
-    if sample_number == 0:
-        matrix = np.array([["5", "2T", "1"], ["2R", "5", "X"], ["4C", "3T", "7I"]])
-    elif sample_number == 1:
-        matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
-    elif sample_number == 2:
-        matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
-                         , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
-                         , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
 
-print(breadthFirstSearch(matrix))
-print(depthFirstSearch(matrix))
-print(uniformCostSearch(matrix))
+def bestFirstSearch(matrix) :
+    """This is a bestFirstSearch search algorithm that returns the shortest path from start point to any other points of the matrix
+    """
+    start_time = time.time()
+    pq = PriorityQueue()
+    pq_end = PriorityQueue()
+    path = ""
+    pq_end.put((calculate_heuristic(matrix, path), path))
+    pq.put((calculate_heuristic(matrix, path), path))
+    visited = set()
+    visited_items = ""
+    while pq_end.get() != 0:
+        cost, path = pq.get()
+        if is_job_done(matrix, path):
+            print_matrix(matrix)
+            return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+        i, j = find_location(matrix, path)
+        if (i, j, visited_items) in visited:
+            continue
+        visited_items += item_check(matrix, path)
+        visited.add((i, j, visited_items))
+        for move in ["L", "R", "U", "D"]:
+            newpath = path + move
+            if move in find_successors(matrix, find_location(matrix, path)):
+                pq.put(((calculate_heuristic(matrix, newpath)), newpath))
+        pq_end.put(pq.queue[0])
+    return "No routes found!"
+
+
+while True:
+    try:
+        choice = str(input("Do you want to enter the matrix manually(M) or use the samples(S)?"))
+        if choice == "M":
+            Rows = int(input("Give the number of rows:"))
+            Columns = int(input("Give the number of columns:"))
+            matrix = np.array([list(map(str, input().split())) for _ in range(Rows)])
+        elif choice == "S":
+            sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
+            if sample_number == 0:
+                matrix = np.array([["X", "2T", "1"], ["2R", "X", "X"], ["X", "3T", "7I"]])
+            elif sample_number == 1:
+                matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
+            elif sample_number == 2:
+                matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
+                                , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
+                                , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
+        else:
+            raise ValueError("Wrong input!\nTry again.")
+
+        if find_start_point(matrix) == None:
+            raise ValueError("There must be one 'R' point in matrix!")
+        if find_goal_points(matrix) == set():
+            raise ValueError("There must be at least one 'T' point in matrix!")
+        
+
+        print(breadthFirstSearch(matrix))
+        print(depthFirstSearch(matrix))
+        print(IterativeDeepeningSearch(matrix))
+        print(uniformCostSearch(matrix))
+        print(AStar(matrix))
+        print(bestFirstSearch(matrix))
+    except Exception as e:
+        print(e)
