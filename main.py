@@ -38,6 +38,29 @@ def calculate_cost(matrix, path):
 
 
 
+def calculate_heuristic(matrix, path):
+    def visited_goals(matrix, path):
+        goals = find_goal_points(matrix)
+        return set(find_location(matrix, path[0:step]) for step in range(len(path)+1) if find_location(matrix, path[0:step]) in goals)
+    
+    heuristic = 0
+    ip, jp = find_location(matrix, path)
+    goal_points = find_goal_points(matrix) - visited_goals(matrix, path)
+    for _ in find_goal_points(matrix):
+        distances = set()
+        min_dist = 0
+        for goal_point in goal_points:
+            distances.add((goal_point[0], goal_point[1], (abs(ip - goal_point[0]) + abs(jp - goal_point[1]))))
+        if distances != set():
+            min_dist = min(distances, key=lambda x: x[2])
+            heuristic += min_dist[2]
+            ip, jp = min_dist[0], min_dist[1]
+            if goal_points:
+                goal_points.remove((ip, jp))
+    return heuristic
+
+
+
 def item_check(matrix, path):
     """this function will add the free items in matrix
     Args:
@@ -129,28 +152,6 @@ def find_successors(matrix, position):
         if 0 <= new_x < matrix.shape[0] and 0 <= new_y < matrix.shape[1] and matrix[new_x, new_y] != "X":
             successors.append(moves[direction])
     return successors
-
-
-
-def heuristic(matrix, path):
-    def visited_goals(matrix, path):
-        goals = find_goal_points(matrix)
-        return set(find_location(matrix, path[0:step]) for step in range(len(path)+1) if find_location(matrix, path[0:step]) in goals)
-    
-    ip, jp = find_location(matrix, path)
-    goal_points = find_goal_points(matrix)
-    hrt = 0
-    c = 0
-    for i, goal in enumerate(goal_points):
-        if goal not in visited_goals(matrix, path):
-            ig , jg = goal
-            if (i - c) == 0:
-                hrt = abs(ip - ig) + abs(jp - jg)
-            elif abs(ip - ig) + abs(jp - jg) <= hrt:
-                hrt = abs(ip - ig) + abs(jp - jg)
-        else:
-            c += 1
-    return hrt
 
 
 
@@ -326,7 +327,7 @@ def AStar(matrix):
     start = time.time()
     pq = PriorityQueue()
     path = ""
-    pq.put(((heuristic(matrix, path) + calculate_cost(matrix, path)), path))
+    pq.put(((calculate_heuristic(matrix, path) + calculate_cost(matrix, path)), path))
     visited = set()
     visited_items = ""
     while not pq.empty():
@@ -342,7 +343,7 @@ def AStar(matrix):
         for move in ["L", "R", "U", "D"]:
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
-                pq.put(((heuristic(matrix, path) + calculate_cost(matrix, path)), newpath))
+                pq.put(((calculate_heuristic(matrix, newpath) + calculate_cost(matrix, newpath)), newpath))
     end = time.time()
     return "No routes found!"
 
