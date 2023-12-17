@@ -258,6 +258,7 @@ def breadthFirstSearch(matrix):
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
                 q.put(newpath)
+    print("\n\nbreadthFirstSearch result:")
     print_matrix(matrix)
     if is_job_done(matrix, path):
         return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
@@ -287,12 +288,16 @@ def depthFirstSearch(matrix):
             if move in find_successors(matrix, find_location(matrix, path)):
                 s.put(newpath)
         if (len(path) >= (matrix.shape[0] * matrix.shape[1])):
+            print("\n\ndepthFirstSearch result:")
             print_matrix(matrix)
             return "No routes found!"
-    print_matrix(matrix)
     if is_job_done(matrix, path):
+        print("\n\ndepthFirstSearch result:")
+        print_matrix(matrix)
         return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
     else:
+        print("\n\ndepthFirstSearch result:")
+        print_matrix(matrix)
         return "No routes found!"
 
 
@@ -323,12 +328,16 @@ def IterativeDeepeningSearch(matrix):
                 if move in find_successors(matrix, find_location(matrix, path)):
                     s.put(newpath)
         if (len(path) >= (matrix.shape[0] * matrix.shape[1])):
+            print("\n\nIterativeDeepeningSearch result:")
             print_matrix(matrix)
             return "No routes found!"
-    print_matrix(matrix)
     if is_job_done(matrix, path):
+        print("\n\nIterativeDeepeningSearch result:")
+        print_matrix(matrix)
         return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
     else:
+        print("\n\nIterativeDeepeningSearch result:")
+        print_matrix(matrix)
         return "No routes found!"
 
 
@@ -345,6 +354,7 @@ def uniformCostSearch(matrix):
     while not pq.empty():
         cost, path = pq.get()
         if is_job_done(matrix, path):
+            print("\n\nuniformCostSearch result:")
             print_matrix(matrix)
             return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
         i, j = find_location(matrix, path)
@@ -357,6 +367,7 @@ def uniformCostSearch(matrix):
             if move in find_successors(matrix, find_location(matrix, path)):
                 pq.put(((calculate_cost(matrix, newpath)), newpath))
     if not(is_job_done(matrix, path)):
+        print("\n\nuniformCostSearch result:")
         print_matrix(matrix)
         return "No routes found!"
 
@@ -374,6 +385,7 @@ def AStar(matrix):
     while not pq.empty():
         cost, path = pq.get()
         if is_job_done(matrix, path):
+            print("\n\nAStar result:")
             print_matrix(matrix)
             return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
         i, j = find_location(matrix, path)
@@ -386,6 +398,7 @@ def AStar(matrix):
             if move in find_successors(matrix, find_location(matrix, path)):
                 pq.put(((calculate_heuristic(matrix, newpath) + calculate_cost(matrix, newpath)), newpath))
     if not(is_job_done(matrix, path)):
+        print("\n\nAStar result:")
         print_matrix(matrix)
         return "No routes found!"
 
@@ -404,6 +417,7 @@ def bestFirstSearch(matrix) :
     while pq_end.get() != 0:
         cost, path = pq.get()
         if is_job_done(matrix, path):
+            print("\n\nbestFirstSearch result:")
             print_matrix(matrix)
             return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
         i, j = find_location(matrix, path)
@@ -417,6 +431,7 @@ def bestFirstSearch(matrix) :
                 pq.put(((calculate_heuristic(matrix, newpath)), newpath))
         pq_end.put(pq.queue[0])
     if not(is_job_done(matrix, path)):
+        print("\n\nbestFirstSearch result:")
         print_matrix(matrix)
         return "No routes found!"
 
