@@ -1,7 +1,6 @@
 import numpy as np
 
-
-
+#calculates the
 def calculate_cost(matrix, path):
     maze = np.copy(matrix)
     def check_item(old_item):

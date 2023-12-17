@@ -5,14 +5,14 @@ import time
 
 
 def calculate_cost(matrix, path):
-    """_summary_
+    """calculates the cost of a move in matrix
 
     Args:
-        matrix (_type_): _description_
-        path (_type_): _description_
+        matrix (_type_):
+        path (_type_):
 
     Returns:
-        _type_: _description_
+        _type_: cost
     """
     maze = np.copy(matrix)
     def check_item(old_item):
@@ -48,23 +48,23 @@ def calculate_cost(matrix, path):
 
 
 def calculate_heuristic(matrix, path):
-    """_summary_
+    """calculates the sum of heuristic distances between current place and all goal points using manhattan distance
 
     Args:
-        matrix (_type_): _description_
-        path (_type_): _description_
+        matrix (_type_):
+        path (_type_):
     Returns:
-        int: cost matrix items
+        int: heuristic distance
     """
     def visited_goals(matrix, path):
-        """_summary_
+        """shows reached goals in a path
 
         Args:
-            matrix (_type_): _description_
-            path (_type_): _description_
+            matrix (_type_):
+            path (_type_):
 
         Returns:
-            _type_: _description_
+            _type_: returns all goals that were visited
         """
         goals = find_goal_points(matrix)
         return set(find_location(matrix, path[0:step]) for step in range(len(path)+1) if find_location(matrix, path[0:step]) in goals)
@@ -88,14 +88,14 @@ def calculate_heuristic(matrix, path):
 
 
 def item_check(matrix, path):
-    """_summary_
+    """check for an item in a matrix block
 
     Args:
-        matrix (_type_): _description_
-        path (_type_): _description_
+        matrix (_type_):
+        path (_type_):
 
     Returns:
-        _type_: _description_
+        _type_: returns the item
     """
     i, j = find_location(matrix, path)
     if "C" in matrix[i, j]:
