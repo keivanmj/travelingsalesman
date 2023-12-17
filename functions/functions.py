@@ -36,6 +36,29 @@ def calculate_cost(matrix, path):
 
 
 
+def calculate_heuristic(matrix, path):
+    def visited_goals(matrix, path):
+        goals = find_goal_points(matrix)
+        return set(find_location(matrix, path[0:step]) for step in range(len(path)+1) if find_location(matrix, path[0:step]) in goals)
+    
+    heuristic = 0
+    ip, jp = find_location(matrix, path)
+    goal_points = find_goal_points(matrix) - visited_goals(matrix, path)
+    for _ in find_goal_points(matrix):
+        distances = set()
+        min_dist = 0
+        for goal_point in goal_points:
+            distances.add((goal_point[0], goal_point[1], (abs(ip - goal_point[0]) + abs(jp - goal_point[1]))))
+        if distances != set():
+            min_dist = min(distances, key=lambda x: x[2])
+            heuristic += min_dist[2]
+            ip, jp = min_dist[0], min_dist[1]
+            if goal_points:
+                goal_points.remove((ip, jp))
+    return heuristic
+
+
+
 def item_check(matrix, path):
     """this function will add the free items in matrix
     Args:
@@ -129,28 +152,6 @@ def find_successors(matrix, position):
     return successors
 
 
-def heuristic(matrix, path):
-    def visited_goals(matrix, path):
-        goals = find_goal_points(matrix)
-        return set(find_location(matrix, path[0:step]) for step in range(len(path) + 1) if
-                   find_location(matrix, path[0:step]) in goals)
-
-    ip, jp = find_location(matrix, path)
-    goal_points = find_goal_points(matrix)
-    hrt = 0
-    c = 0
-    for i, goal in enumerate(goal_points):
-        if goal not in visited_goals(matrix, path):
-            ig, jg = goal
-            if (i - c) == 0:
-                hrt = abs(ip - ig) + abs(jp - jg)
-            elif abs(ip - ig) + abs(jp - jg) <= hrt:
-                hrt = abs(ip - ig) + abs(jp - jg)
-        else:
-            c += 1
-    return hrt
-
-
 
 def is_job_done(matrix, moves):
     """This function will return the job done message
@@ -204,5 +205,3 @@ def print_matrix(matrix, moves=""):
             else:
                 print("{:^5}".format(val), end = "│")
         print("\n┼" + "─────┼"*len(matrix[0]))
-
-
