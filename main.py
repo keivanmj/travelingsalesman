@@ -354,7 +354,9 @@ def uniformCostSearch(matrix):
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
                 pq.put(((calculate_cost(matrix, newpath)), newpath))
-    return "No routes found!"
+    if not(is_job_done(matrix, path)):
+        print_matrix(matrix)
+        return "No routes found!"
 
 
 
@@ -381,7 +383,9 @@ def AStar(matrix):
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
                 pq.put(((calculate_heuristic(matrix, newpath) + calculate_cost(matrix, newpath)), newpath))
-    return "No routes found!"
+    if not(is_job_done(matrix, path)):
+        print_matrix(matrix)
+        return "No routes found!"
 
 
 def bestFirstSearch(matrix) :
@@ -410,12 +414,14 @@ def bestFirstSearch(matrix) :
             if move in find_successors(matrix, find_location(matrix, path)):
                 pq.put(((calculate_heuristic(matrix, newpath)), newpath))
         pq_end.put(pq.queue[0])
-    return "No routes found!"
+    if not(is_job_done(matrix, path)):
+        print_matrix(matrix)
+        return "No routes found!"
 
 
 while True:
     try:
-        choice = str(input("Do you want to enter the matrix manually(M) or use the samples(S)?"))
+        choice = str(input("Do you want to enter the matrix manually(M) or use the samples(S)?\nEnter (E) if you wanna exit."))
         if choice == "M":
             Rows = int(input("Give the number of rows:"))
             Columns = int(input("Give the number of columns:"))
@@ -423,13 +429,15 @@ while True:
         elif choice == "S":
             sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
             if sample_number == 0:
-                matrix = np.array([["X", "2T", "1"], ["2R", "X", "X"], ["X", "3T", "7I"]])
+                matrix = np.array([["5", "2T", "1"], ["2R", "5", "X"], ["4C", "3T", "7I"]])
             elif sample_number == 1:
                 matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
             elif sample_number == 2:
                 matrix = np.array([["4", "2C", "1", "15", "1B"], ["5", "4", "5", "X", "X"]
                                 , ["2", "2", "1", "1R", "1T"], ["5", "2", "1", "1", "X"]
                                 , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
+        elif choice == "E":
+            break
         else:
             raise ValueError("Wrong input!\nTry again.")
 
