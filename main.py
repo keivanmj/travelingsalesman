@@ -132,6 +132,25 @@ def find_successors(matrix, position):
 
 
 
+def heuristic(matrix, path):
+    def visited_goals(matrix, path):
+        goals = find_goal_points(matrix)
+        return set(find_location(matrix, path[0:step]) for step in range(len(path)+1) if find_location(matrix, path[0:step]) in goals)
+    
+    ip, jp = find_location(matrix, path)
+    goal_points = find_goal_points(matrix)
+    hrt = 0
+    for i, goal in enumerate(goal_points):
+        if goal not in visited_goals(matrix, path):
+            ig , jg = goal
+            if i == 0:
+                hrt = abs(ip - ig) + abs(jp - jg)
+            elif abs(ip - ig) + abs(jp - jg) <= hrt:
+                hrt = abs(ip - ig) + abs(jp - jg)
+    return hrt
+
+
+
 def is_job_done(matrix, moves):
     """This function will return the job done message
     Returns:
@@ -174,8 +193,8 @@ def print_matrix(matrix, moves=""):
             i -= 1
         elif move == "D":
             i += 1
-        pos.add((i, j))    #  '─', '│', '┌', '│', '└', '│', '├', '─', '─', '┐', '┬', '┘', '┴', '┤', '┼'
-    print("┌" + "─────┬"*len(matrix[0]))
+        pos.add((i, j))
+    print("┼" + "─────┼"*len(matrix[0]))
     for i, row in enumerate(matrix):
         print("│", end="")
         for j, val in enumerate(row):
@@ -183,7 +202,7 @@ def print_matrix(matrix, moves=""):
                 print("{:^5}".format("+"), end = "│")
             else:
                 print("{:^5}".format(val), end = "│")
-        print("\n├" + "─────┼"*len(matrix[0]))
+        print("\n┼" + "─────┼"*len(matrix[0]))
 
 
 
@@ -215,7 +234,7 @@ def breadthFirstSearch(matrix):
 
 def depthFirstSearch(matrix):
     """This is a Depth-first search algorithm that returns the shortest path from start point to any other points of the matrix
-        """
+    """
     start = time.time()
     s = LifoQueue()
     path = ""
@@ -240,8 +259,8 @@ def depthFirstSearch(matrix):
 
 
 def IterativeDeepeningSearch(matrix):
-    """This is a Depth-first search algorithm that returns the shortest path from start point to any other points of the matrix
-        """
+    """This is a Iterative-deepening search algorithm that returns the shortest path from start point to any other points of the matrix
+    """
     start = time.time()
     s = LifoQueue()
     path = ""
@@ -249,7 +268,7 @@ def IterativeDeepeningSearch(matrix):
     c = 0
     while not (is_job_done(matrix, path)):
         path = s.get()
-        if (len(path) == 0) :
+        if (len(path) == 0):
             c = c + 1
             visited = set()
             visited_items = ""
@@ -259,14 +278,14 @@ def IterativeDeepeningSearch(matrix):
             continue
         visited_items += item_check(matrix, path)
         visited.add((i, j, visited_items))
-        if (len(path) < c) :
+        if (len(path) < c):
             for move in ["L", "R", "U", "D"]:
                 newpath = path + move
-                if move in p1.find_successors(matrix, find_location(matrix, path)):
+                if move in find_successors(matrix, find_location(matrix, path)):
                     s.put(newpath)
     end = time.time()
     print_matrix(matrix)
-    return ( (500 - calculate_cost(matrix, path)), path, (end - start))
+    return ((500 - calculate_cost(matrix, path)), path, (end - start))
 
 
 
@@ -317,4 +336,5 @@ elif choise == "False":
 
 print(breadthFirstSearch(matrix))
 print(depthFirstSearch(matrix))
+print(IterativeDeepeningSearch(matrix))
 print(uniformCostSearch(matrix))
