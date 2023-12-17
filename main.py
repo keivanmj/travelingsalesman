@@ -287,6 +287,7 @@ def depthFirstSearch(matrix):
             if move in find_successors(matrix, find_location(matrix, path)):
                 s.put(newpath)
         if (len(path) >= (matrix.shape[0] * matrix.shape[1])):
+            print_matrix(matrix)
             return "No routes found!"
     print_matrix(matrix)
     if is_job_done(matrix, path):
@@ -322,6 +323,7 @@ def IterativeDeepeningSearch(matrix):
                 if move in find_successors(matrix, find_location(matrix, path)):
                     s.put(newpath)
         if (len(path) >= (matrix.shape[0] * matrix.shape[1])):
+            print_matrix(matrix)
             return "No routes found!"
     print_matrix(matrix)
     if is_job_done(matrix, path):
