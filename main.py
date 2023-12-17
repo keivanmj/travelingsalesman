@@ -140,13 +140,16 @@ def heuristic(matrix, path):
     ip, jp = find_location(matrix, path)
     goal_points = find_goal_points(matrix)
     hrt = 0
+    c = 0
     for i, goal in enumerate(goal_points):
         if goal not in visited_goals(matrix, path):
             ig , jg = goal
-            if i == 0:
+            if (i - c) == 0:
                 hrt = abs(ip - ig) + abs(jp - jg)
             elif abs(ip - ig) + abs(jp - jg) <= hrt:
                 hrt = abs(ip - ig) + abs(jp - jg)
+        else:
+            c += 1
     return hrt
 
 
@@ -317,6 +320,33 @@ def uniformCostSearch(matrix):
 
 
 
+def AStar(matrix):
+    """This is a A-star algorithm that returns the shortest path from start point to any other points of the matrix
+    """
+    start = time.time()
+    pq = PriorityQueue()
+    path = ""
+    pq.put(((heuristic(matrix, path) + calculate_cost(matrix, path)), path))
+    visited = set()
+    visited_items = ""
+    while not pq.empty():
+        cost, path = pq.get()
+        if is_job_done(matrix, path):
+            print_matrix(matrix)
+            return ((500 - calculate_cost(matrix, path)), path, (time.time() - start))
+        i, j = find_location(matrix, path)
+        if (i, j, visited_items) in visited:
+            continue
+        visited_items += item_check(matrix, path)
+        visited.add((i, j, visited_items))
+        for move in ["L", "R", "U", "D"]:
+            newpath = path + move
+            if move in find_successors(matrix, find_location(matrix, path)):
+                pq.put(((heuristic(matrix, path) + calculate_cost(matrix, path)), newpath))
+    end = time.time()
+    return "No routes found!"
+
+
 
 choise = str(input("Do you want to enter the matrix manually(True) or use the samples(False)?"))
 if choise == "True":
@@ -338,3 +368,4 @@ print(breadthFirstSearch(matrix))
 print(depthFirstSearch(matrix))
 print(IterativeDeepeningSearch(matrix))
 print(uniformCostSearch(matrix))
+print(AStar(matrix))
