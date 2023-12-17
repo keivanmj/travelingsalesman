@@ -245,6 +245,7 @@ def depthFirstSearch(matrix):
     s.put(path)
     visited = set()
     visited_items = ""
+    print_matrix(matrix)
     while not (is_job_done(matrix, path)):
         path = s.get()
         i, j = find_location(matrix, path)
@@ -256,6 +257,8 @@ def depthFirstSearch(matrix):
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
                 s.put(newpath)
+        if (len(path) <= (matrix.shape[0] * matrix.shape[1])):
+            return "no routes found!"
     end = time.time()
     print_matrix(matrix)
     return ( (500 - calculate_cost(matrix, path)), path, (end - start))
@@ -378,12 +381,12 @@ def bestFirstSearch(matrix) :
 
 
 
-choise = str(input("Do you want to enter the matrix manually(True) or use the samples(False)?"))
-if choise == "True":
+choice = str(input("Do you want to enter the matrix manually(True) or use the samples(False)?"))
+if choice == "True":
     Rows = int(input("Give the number of rows:"))
     Columns = int(input("Give the number of columns:"))
     matrix = np.array([list(map(str, input().split())) for _ in range(Rows)])
-elif choise == "False":
+elif choice == "False":
     sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
     if sample_number == 0:
         matrix = np.array([["5", "2T", "1"], ["2R", "5", "X"], ["4C", "3T", "7I"]])
@@ -395,7 +398,7 @@ elif choise == "False":
                          , ["50", "2", "1C", "1", "X"], ["2T", "2", "1", "1", "1"]])
 
 print(breadthFirstSearch(matrix))
-# print(depthFirstSearch(matrix))
+print(depthFirstSearch(matrix))
 print(IterativeDeepeningSearch(matrix))
 print(uniformCostSearch(matrix))
 print(AStar(matrix))
