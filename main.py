@@ -247,7 +247,7 @@ def breadthFirstSearch(matrix):
     q.put(path)
     visited = set()
     visited_items = ""
-    while not(is_job_done(matrix, path)):
+    while not(is_job_done(matrix, path)) and not(q.empty()):
         path = q.get()
         i, j = find_location(matrix, path)
         if (i, j, visited_items) in visited:
@@ -259,7 +259,10 @@ def breadthFirstSearch(matrix):
             if move in find_successors(matrix, find_location(matrix, path)):
                 q.put(newpath)
     print_matrix(matrix)
-    return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+    if is_job_done(matrix, path):
+        return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+    else:
+        return "No routes found!"
 
 
 
@@ -272,8 +275,7 @@ def depthFirstSearch(matrix):
     s.put(path)
     visited = set()
     visited_items = ""
-    print_matrix(matrix)
-    while not (is_job_done(matrix, path)):
+    while not(is_job_done(matrix, path)) and not(s.empty()):
         path = s.get()
         i, j = find_location(matrix, path)
         if (i, j, visited_items) in visited:
@@ -284,10 +286,13 @@ def depthFirstSearch(matrix):
             newpath = path + move
             if move in find_successors(matrix, find_location(matrix, path)):
                 s.put(newpath)
-        if (len(path) <= (matrix.shape[0] * matrix.shape[1])):
-            return "no routes found!"
+        if (len(path) >= (matrix.shape[0] * matrix.shape[1])):
+            return "No routes found!"
     print_matrix(matrix)
-    return ( (500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+    if is_job_done(matrix, path):
+        return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+    else:
+        return "No routes found!"
 
 
 
@@ -298,11 +303,11 @@ def IterativeDeepeningSearch(matrix):
     s = LifoQueue()
     path = ""
     s.put(path)
-    c = 0
-    while not (is_job_done(matrix, path)):
+    depth = 0
+    while not(is_job_done(matrix, path)):
         path = s.get()
         if (len(path) == 0):
-            c = c + 1
+            depth += 1
             visited = set()
             visited_items = ""
             s.put("")
@@ -311,13 +316,18 @@ def IterativeDeepeningSearch(matrix):
             continue
         visited_items += item_check(matrix, path)
         visited.add((i, j, visited_items))
-        if (len(path) < c):
+        if (len(path) < depth):
             for move in ["L", "R", "U", "D"]:
                 newpath = path + move
                 if move in find_successors(matrix, find_location(matrix, path)):
                     s.put(newpath)
+        if (len(path) >= (matrix.shape[0] * matrix.shape[1])):
+            return "No routes found!"
     print_matrix(matrix)
-    return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+    if is_job_done(matrix, path):
+        return ((500 - calculate_cost(matrix, path)), path, (time.time() - start_time))
+    else:
+        return "No routes found!"
 
 
 
@@ -413,7 +423,7 @@ while True:
         elif choice == "S":
             sample_number = int(input("(3, 3) -> 0\n(3, 5) -> 1\n(6, 5) -> 2\nchoose one of those samples:"))
             if sample_number == 0:
-                matrix = np.array([["5", "2T", "1"], ["2R", "5", "X"], ["4C", "3T", "7I"]])
+                matrix = np.array([["X", "2T", "1"], ["2R", "X", "X"], ["X", "3T", "7I"]])
             elif sample_number == 1:
                 matrix = np.array([["5", "3C", "9I", "25", "1"], ["2R", "X", "3T", "X", "5T"], ["4C", "4", "2", "3", "7I"]])
             elif sample_number == 2:
@@ -427,6 +437,7 @@ while True:
             raise ValueError("There must be one 'R' point in matrix!")
         if find_goal_points(matrix) == set():
             raise ValueError("There must be at least one 'T' point in matrix!")
+        
 
         print(breadthFirstSearch(matrix))
         print(depthFirstSearch(matrix))
