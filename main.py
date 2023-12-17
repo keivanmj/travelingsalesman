@@ -239,6 +239,37 @@ def depthFirstSearch(matrix):
 
 
 
+def IterativeDeepeningSearch(matrix):
+    """This is a Depth-first search algorithm that returns the shortest path from start point to any other points of the matrix
+        """
+    start = time.time()
+    s = LifoQueue()
+    path = ""
+    s.put(path)
+    c = 0
+    while not (is_job_done(matrix, path)):
+        path = s.get()
+        if (len(path) == 0) :
+            c = c + 1
+            visited = set()
+            visited_items = ""
+            s.put("")
+        i, j = find_location(matrix, path)
+        if (i, j, visited_items) in visited:
+            continue
+        visited_items += item_check(matrix, path)
+        visited.add((i, j, visited_items))
+        if (len(path) < c) :
+            for move in ["L", "R", "U", "D"]:
+                newpath = path + move
+                if move in p1.find_successors(matrix, find_location(matrix, path)):
+                    s.put(newpath)
+    end = time.time()
+    print_matrix(matrix)
+    return ( (500 - calculate_cost(matrix, path)), path, (end - start))
+
+
+
 def uniformCostSearch(matrix):
     """This is a Uniform-cost search algorithm that returns the shortest path from start point to any other points of the matrix
     """
